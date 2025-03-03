@@ -24,4 +24,5 @@ with torch.no_grad():
     ).squeeze()
 output = prediction.cpu().numpy()
 plt.imshow(output)
-plt.show()
+print(output)
+#plt.show()

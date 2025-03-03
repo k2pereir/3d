@@ -1,8 +1,8 @@
 import cv2 as cv 
 import torch 
 import matplotlib.pyplot as plt 
-import open3d 
 import numpy as np 
+import pyvista as pv 
 
 #load model 
 midas = torch.hub.load("intel-isl/MiDaS", "MiDaS_small")
@@ -27,14 +27,21 @@ with torch.no_grad():
     ).squeeze()
 output = prediction.cpu().numpy()
 
+#reshape for 3d point cloud
+height, width  = output.shape
+y, x = np.indices((height, width))
+points = np.stack((x.flatten(), y.flatten(), output.flatten()), axis=-1)
+print(points.shape)
+
+
 print("!!!!!!!!!")
 print(output)
 print("!!!!!!!!!")
 
-plt.imshow(output)
-plt.savefig('depthmap.png')
+#plt.imshow(output)
+#plt.savefig('depthmap.png')
 
 #get 3d point cloud
-pcd = open3d.t.geometry.PointCloud(
-    np.array(output, dtype=np.float32))
-print(pcd)
+pc = pv.PolyData(points)
+np.allclose(pc.points, points)
+pc.plot(eye_dome_lighting=True) #it ends up looking so creepy T_T
